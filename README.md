@@ -181,3 +181,6 @@ print("Verified:", result["verified"])  # True
 * **License:** [MIT License](LICENSE)
 * **Author:** Benni Alencar (`bennialencar@gmail.com`)
 * **Architecture:** Benni Master OS v9.4 Tier-0 Governance Standard
+
+
+* **[`agent-code-sandbox`](https://github.com/BenniAlencar/agent-code-sandbox)**: Micro-second zero-dependency code sandbox with AST security guards & context token shielding.
