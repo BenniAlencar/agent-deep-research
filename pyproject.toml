@@ -1,0 +1,64 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "agent-deep-research"
+version = "1.0.0"
+description = "Autonomous Multi-Source Deep Research & Evidence Synthesis Engine for AI Agents & MCP"
+readme = "README.md"
+requires-python = ">=3.9"
+license = "MIT"
+authors = [
+    { name = "Benni Alencar", email = "bennialencar@gmail.com" }
+]
+keywords = [
+    "deep-research",
+    "ai-agents",
+    "mcp",
+    "mcp-server",
+    "claude-code",
+    "cursor",
+    "research-agent",
+    "rag",
+    "bm25",
+    "citation-verification",
+    "provenance",
+    "zero-hallucination",
+    "duckduckgo",
+    "arxiv"
+]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Internet :: WWW/HTTP :: Indexing/Search",
+    "Topic :: Software Development :: Libraries :: Python Modules"
+]
+dependencies = []
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "twine>=4.0.0",
+    "build>=1.0.0"
+]
+
+[project.scripts]
+agent-deep-research = "agent_deep_research.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/BenniAlencar/agent-deep-research"
+Repository = "https://github.com/BenniAlencar/agent-deep-research"
+Issues = "https://github.com/BenniAlencar/agent-deep-research/issues"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/agent_deep_research"]
