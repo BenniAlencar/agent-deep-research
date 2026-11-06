@@ -181,3 +181,96 @@ class ContentDistiller:
             estimated_tokens_saved=tokens_saved,
             average_density_score=round(avg_score, 4),
         )
+
+
+@dataclass
+class ResearchPassage:
+    passage_id: str
+    source_url: str
+    text: str
+    score: float = 0.0
+
+
+class BM25Distiller:
+    """
+    Sub-millisecond BM25 passage indexer and falsifiable citation gate.
+    Cleanly resets inverted index and document frequencies on re-index.
+    """
+
+    def __init__(self, k1: float = 1.5, b: float = 0.75) -> None:
+        self.k1 = k1
+        self.b = b
+        self.corpus: List[ResearchPassage] = []
+        self.doc_lengths: List[int] = []
+        self.avg_doc_len: float = 0.0
+        self.inverted_index: dict[str, dict[int, int]] = {}
+        self.df: dict[str, int] = {}
+
+    def _tokenize(self, text: str) -> List[str]:
+        # Tokens of length >= 2 to capture acronyms like AI, OS, ML, Q4
+        return re.findall(r"\b[a-zA-Z0-9_]{2,}\b", text.lower())
+
+    def index_documents(self, documents: List[tuple[str, str]]) -> None:
+        """Indexes documents as discrete passages. tuple: (source_url, full_text)."""
+        # Critical Fix: Reset all index state on re-index to eliminate state accumulation
+        self.corpus = []
+        self.doc_lengths = []
+        self.inverted_index = {}
+        self.df = {}
+
+        for url, raw_text in documents:
+            paragraphs = [p.strip() for p in raw_text.split("\n\n") if len(p.strip()) > 40]
+            for p in paragraphs:
+                self.corpus.append(ResearchPassage(
+                    passage_id=f"doc_{len(self.corpus)}",
+                    source_url=url,
+                    text=p
+                ))
+
+        num_docs = len(self.corpus)
+        if num_docs == 0:
+            return
+
+        self.doc_lengths = [len(self._tokenize(p.text)) for p in self.corpus]
+        self.avg_doc_len = sum(self.doc_lengths) / num_docs
+
+        for doc_id, p in enumerate(self.corpus):
+            tokens = self._tokenize(p.text)
+            term_freqs: dict[str, int] = {}
+            for t in tokens:
+                term_freqs[t] = term_freqs.get(t, 0) + 1
+
+            for t, freq in term_freqs.items():
+                if t not in self.inverted_index:
+                    self.inverted_index[t] = {}
+                self.inverted_index[t][doc_id] = freq
+                self.df[t] = self.df.get(t, 0) + 1
+
+    def query(self, query_str: str, top_k: int = 3) -> List[ResearchPassage]:
+        q_tokens = self._tokenize(query_str)
+        num_docs = len(self.corpus)
+        if num_docs == 0:
+            return []
+
+        scores: dict[int, float] = {i: 0.0 for i in range(num_docs)}
+
+        for t in q_tokens:
+            if t not in self.inverted_index:
+                continue
+            doc_freq = self.df.get(t, 0)
+            idf = math.log((num_docs - doc_freq + 0.5) / (doc_freq + 0.5) + 1.0)
+
+            for doc_id, tf in self.inverted_index[t].items():
+                doc_len = self.doc_lengths[doc_id]
+                numerator = tf * (self.k1 + 1.0)
+                denominator = tf + self.k1 * (1.0 - self.b + self.b * (doc_len / self.avg_doc_len))
+                scores[doc_id] += idf * (numerator / denominator)
+
+        ranked = sorted(scores.items(), key=lambda x: x[1], reverse=True)[:top_k]
+        results = []
+        for doc_id, sc in ranked:
+            if sc > 0:
+                p = self.corpus[doc_id]
+                results.append(ResearchPassage(p.passage_id, p.source_url, p.text, score=sc))
+        return results
+

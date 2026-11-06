@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "agent-deep-research"
-version = "1.0.0"
+version = "1.1.0"
 description = "Autonomous Multi-Source Deep Research & Evidence Synthesis Engine for AI Agents & MCP"
 readme = "README.md"
 requires-python = ">=3.9"
