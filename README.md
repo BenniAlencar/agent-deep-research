@@ -4,7 +4,7 @@
 
 <br/>
 
-[![Tests](https://img.shields.io/badge/Tests-16%20Passed-00C853?style=for-the-badge&logo=pytest&logoColor=white)](#-token-compression-benchmark)
+[![Tests](https://img.shields.io/badge/Tests-20%20Passed-00C853?style=for-the-badge&logo=pytest&logoColor=white)](#-token-compression-benchmark)
 [![Python](https://img.shields.io/badge/Python-3.9%20%7C%203.10%20%7C%203.11%20%7C%203.12-7000FF?style=for-the-badge&logo=python&logoColor=white)](https://pypi.org/project/agent-deep-research/)
 [![MCP](https://img.shields.io/badge/MCP-JSON--RPC%202.0-8a2be2?style=for-the-badge)](https://modelcontextprotocol.io/)
 [![Token Reduction](https://img.shields.io/badge/Token%20Reduction-%3E85%25-00C853?style=for-the-badge)](#-token-compression-benchmark)
@@ -35,6 +35,39 @@ Recent Deep Research systems (`gpt-researcher`, `STORM`, `open-deep-research`) m
 3. **Hallucinated Citations & Dead 404 Links:** Allowing LLMs to invent markdown links generates fabricated statistics and broken links.
 4. **Mandatory Paid API Subscriptions:** Most frameworks refuse to run unless you purchase third-party search APIs (Tavily, SerpAPI).
 5. **No Native MCP Support:** Bulky web UIs or complex Docker containers prevent seamless integration into developer IDEs (Claude Code, Cursor).
+
+---
+
+## 🏗️ Architecture
+
+```text
+  Claude Code / Cursor / Autonomous Research Agents
+         │
+         ├──► Python SDK  ResearchEngine.research() / FactLedger.verify_claim()
+         └──► STDIO JSON-RPC 2.0 (agent-deep-research mcp)
+                       │
+                       ▼
+  ┌─────────────────────────────────────────────────────────────────────┐
+  │                     agent-deep-research (ADR)                       │
+  │                                                                     │
+  │  ┌───────────────────┐  ┌───────────────────┐  ┌─────────────────┐  │
+  │  │  Multi-Source     │  │  BM25 Content     │  │  SHA-256 Fact   │  │
+  │  │  Search Adapter   │─►│  Distiller        │─►│  Ledger         │  │
+  │  │ • DuckDuckGo/Wiki │  │ • HTML Pruning    │  │ • Hash Proofs   │  │
+  │  │ • ArXiv Preprints │  │ • >85% Savings    │  │ • Number Gate   │  │
+  │  └───────────────────┘  └───────────────────┘  └─────────────────┘  │
+  │                                                                     │
+  │  ┌───────────────────┐  ┌───────────────────┐  ┌─────────────────┐  │
+  │  │  Recursive Plan   │  │  Live Telemetry   │  │ Research Doctor │  │
+  │  │  & Synthesis      │  │  & Health Monitor │  │ & Bench Matrix  │  │
+  │  │ • Sub-Hypotheses  │  │ • P50/P90/P99 ms  │  │ • Corpus Probe  │  │
+  │  └───────────────────┘  └───────────────────┘  └─────────────────┘  │
+  └─────────────────────────────────────────────────────────────────────┘
+         │                                         │
+         ▼                                         ▼
+   ResearchDossier (Markdown / JSON)        Cryptographic Bibliography
+   (Distilled High-Signal Context)          (Zero-Hallucination Root Hash)
+```
 
 ---
 
@@ -158,6 +191,42 @@ ledger = FactLedger()
 ledger.add_snippet("Surface code threshold is 0.7% under depolarizing noise.", "https://arxiv.org/abs/qec", "QEC Spec")
 result = ledger.verify_claim("Surface code threshold is 0.7%")
 print("Verified:", result["verified"])  # True
+```
+
+---
+
+## 📁 Project Structure
+
+```text
+agent-deep-research/
+├── src/agent_deep_research/
+│   ├── __init__.py                   # Backwards-compatible public API exports
+│   ├── cli.py                        # CLI entrypoint bridge
+│   ├── core/
+│   │   ├── __init__.py               # Core research primitives package
+│   │   ├── distiller.py              # HTML noise-stripper & BM25 passage ranker
+│   │   ├── engine.py                 # ResearchEngine multi-hop dossier orchestrator
+│   │   ├── search.py                 # Zero-key DuckDuckGo / Wikipedia / ArXiv adapter
+│   │   └── verifier.py               # SHA-256 FactLedger & numerical contradiction gate
+│   ├── serve/
+│   │   ├── __init__.py               # Serving & observability exports
+│   │   ├── __main__.py               # Unified CLI (run, search, mcp, doctor, matrix, health)
+│   │   ├── health_monitor.py         # Distiller, FactLedger & search health probe
+│   │   ├── mcp_bridge.py             # Native MCP JSON-RPC 2.0 stdio server
+│   │   └── telemetry.py              # Thread-safe P50/P90/P99 latency & compression telemetry
+│   └── tools/
+│       ├── __init__.py               # Diagnostics & benchmarking exports
+│       ├── bench_matrix.py           # Multi-workload BM25 distillation matrix
+│       └── doctor.py                 # End-to-end research pipeline diagnostic probe
+├── examples/
+│   ├── quickstart_research.py        # Minimal offline research dossier example
+│   └── fact_ledger_verification.py   # SHA-256 claim verification + telemetry example
+├── scripts/
+│   ├── benchmark_distillation.py     # Multi-workload BM25 compression benchmark
+│   └── gate_provenance_audit.py      # Provenance & runtime health gate runner
+├── docs/
+│   └── ARCHITECTURE.md               # Three-tier package architecture reference
+└── tests/                            # Full pytest suite (20 tests)
 ```
 
 ---

@@ -3,10 +3,21 @@ agent-deep-research: Autonomous Multi-Source Deep Research & Evidence Synthesis 
 Part of Benni Master OS v9.4 ecosystem.
 """
 
-from .core import ResearchEngine, ResearchDossier, ResearchPlan
-from .search import MultiSearchAdapter, SearchResult
-from .distiller import ContentDistiller, DistilledContent, BM25Distiller, ResearchPassage
-from .verifier import EvidenceSnippet, FactLedger
+from .core import (
+    BM25Distiller,
+    ContentDistiller,
+    DistilledContent,
+    EvidenceSnippet,
+    FactLedger,
+    MultiSearchAdapter,
+    ResearchDossier,
+    ResearchEngine,
+    ResearchPassage,
+    ResearchPlan,
+    SearchResult,
+)
+from .serve import HealthMonitor, HealthSnapshot, ResearchTelemetry
+from .tools import BenchmarkMatrix, DoctorReport, MatrixRow, ResearchDoctor
 
 __version__ = "1.1.0"
 __author__ = "Benni Alencar"
@@ -23,5 +34,12 @@ __all__ = [
     "ResearchPassage",
     "EvidenceSnippet",
     "FactLedger",
+    "HealthMonitor",
+    "HealthSnapshot",
+    "ResearchTelemetry",
+    "ResearchDoctor",
+    "DoctorReport",
+    "BenchmarkMatrix",
+    "MatrixRow",
     "__version__",
 ]
